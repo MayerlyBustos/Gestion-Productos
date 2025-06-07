@@ -5,8 +5,8 @@ services:
     image: postgres:15-alpine
     container_name: products-db
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin1234
+      POSTGRES_USER: user_xxxx
+      POSTGRES_PASSWORD: password_xxxx
       POSTGRES_DB: products
     ports:
       - "5432:5432"

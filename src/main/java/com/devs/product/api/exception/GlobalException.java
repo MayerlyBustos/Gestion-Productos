@@ -1,11 +1,14 @@
 package com.devs.product.api.exception;
 
+import com.devs.product.api.dto.ResponseExceptionDTO;
 import com.devs.product.api.util.Constants;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,11 +17,14 @@ import java.util.Map;
 public class GlobalException {
 
     @ExceptionHandler(NotFoundProductException.class)
-    public ResponseEntity<String> handleProductNotFound(NotFoundProductException ex) {
+    public ResponseEntity<ResponseExceptionDTO> handleProductNotFound(NotFoundProductException ex) {
+        ResponseExceptionDTO exceptionResponse = new ResponseExceptionDTO();
+        exceptionResponse.setError(ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(ex.getMessage());
+                .body(exceptionResponse);
     }
 
+    @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationException(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
 
@@ -29,14 +35,34 @@ public class GlobalException {
     }
 
     @ExceptionHandler(AppBaseException.class)
-    public ResponseEntity<String> handleAppBase(AppBaseException ex) {
+    public ResponseEntity<ResponseExceptionDTO> handleAppBase(AppBaseException ex) {
+        ResponseExceptionDTO exceptionResponse = new ResponseExceptionDTO();
+        exceptionResponse.setError(ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ex.getMessage());
+                .body(exceptionResponse);
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ResponseExceptionDTO> handleParametertNotFound(MissingServletRequestParameterException ex) {
+        ResponseExceptionDTO exceptionResponse = new ResponseExceptionDTO();
+        exceptionResponse.setError(Constants.NOT_FOUND_PARAMETER);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(exceptionResponse);
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ResponseExceptionDTO> handlePathNotFound(NoResourceFoundException ex){
+        ResponseExceptionDTO exceptionResponse = new ResponseExceptionDTO();
+        exceptionResponse.setError(Constants.PATH_NOT_FOUND);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(exceptionResponse);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleGlobalExceptions(Exception ex) {
+    public ResponseEntity<ResponseExceptionDTO> handleGlobalExceptions(Exception ex) {
+        ResponseExceptionDTO exceptionResponse = new ResponseExceptionDTO();
+        exceptionResponse.setError(Constants.UNEXPECTED_ERROR);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Constants.UNEXPECTED_ERROR);
+                .body(exceptionResponse);
     }
 }

@@ -1,0 +1,34 @@
+package com.devs.product.api.dto;
+
+
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class ProductoDTO {
+
+    private Long id;
+    @NotBlank(message = "Nombre del producto es obligatorio")
+    @Size(min = 3, message = "Nombre del producto debe tener al menos 3 caracteres")
+    private String name;
+
+    private String description;
+
+    @NotNull(message = "Precio del producto es obligatorio")
+    @DecimalMin(value = "0.01", inclusive = true, message = "El precio debe ser mayor a 0")
+    private BigDecimal price;
+
+    private LocalDateTime createdAt;
+}

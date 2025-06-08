@@ -89,7 +89,7 @@ public class Utils {
         product2.setCreatedAt(LocalDateTime.now());
 
         Product product4 = new Product();
-        product4.setId(3L);
+        product4.setId(4L);
         product4.setName("Test Product");
         product4.setPrice(new BigDecimal("19.99"));
         product4.setDescription("Desc");

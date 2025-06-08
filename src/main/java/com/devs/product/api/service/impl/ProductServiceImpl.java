@@ -77,9 +77,7 @@ public class ProductServiceImpl implements IProductService {
 
     @Override
     public ProductDTO getProductById(Long productId) {
-        if (productId == null || productId <= 0) {
-            throw new NotFoundProductException(Constants.INVALID_PRODUCT_ID);
-        }
+        ValidateData.validateNullProductId(productId);
 
         return productRepository.findById(productId)
                 .map(productMapper::toDTO)
@@ -113,6 +111,11 @@ public class ProductServiceImpl implements IProductService {
 
     @Override
     public void deleteProductById(Long productId) {
-
+        ValidateData.validateNullProductId(productId);
+        boolean exists = productRepository.existsById(productId);
+        if (!exists) {
+            throw new NotFoundProductException(Constants.PRODUCT_NOT_FOUND);
+        }
+        productRepository.deleteById(productId);
     }
 }

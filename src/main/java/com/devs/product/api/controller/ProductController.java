@@ -31,4 +31,11 @@ public class ProductController {
         PageResponse<ProductDTO> productDTOPageResponse = productService.listProducts(page, size);
         return ResponseEntity.ok(productDTOPageResponse);
     }
+
+    @GetMapping("/products/{id}")
+    public ResponseEntity<ProductDTO> getProductById(@PathVariable Long id) {
+        ProductDTO productDTO = productService.getProductById(id);
+        return ResponseEntity.ok(productDTO);
+    }
+
 }

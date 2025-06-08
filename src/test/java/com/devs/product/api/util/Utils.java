@@ -1,4 +1,4 @@
-package com.devs.product.api;
+package com.devs.product.api.util;
 
 import com.devs.product.api.dto.PageResponse;
 import com.devs.product.api.dto.ProductDTO;

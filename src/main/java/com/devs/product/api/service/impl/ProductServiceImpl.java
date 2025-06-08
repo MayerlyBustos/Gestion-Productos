@@ -2,7 +2,6 @@ package com.devs.product.api.service.impl;
 
 import com.devs.product.api.dto.PageResponse;
 import com.devs.product.api.dto.ProductDTO;
-import com.devs.product.api.exception.AppBaseException;
 import com.devs.product.api.exception.NotFoundProductException;
 import com.devs.product.api.exception.ServiceUnavailableException;
 import com.devs.product.api.mapper.PageProductMapper;

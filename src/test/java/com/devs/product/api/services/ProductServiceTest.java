@@ -1,7 +1,7 @@
 package com.devs.product.api.services;
 
 
-import com.devs.product.api.Utils;
+import com.devs.product.api.util.Utils;
 import com.devs.product.api.dto.PageResponse;
 import com.devs.product.api.dto.ProductDTO;
 import com.devs.product.api.exception.NotFoundProductException;

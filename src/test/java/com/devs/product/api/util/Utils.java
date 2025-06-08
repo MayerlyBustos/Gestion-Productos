@@ -6,7 +6,6 @@ import com.devs.product.api.model.Product;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 

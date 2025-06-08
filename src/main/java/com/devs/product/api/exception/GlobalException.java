@@ -8,6 +8,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.HashMap;
@@ -51,9 +52,25 @@ public class GlobalException {
     }
 
     @ExceptionHandler(NoResourceFoundException.class)
-    public ResponseEntity<ResponseExceptionDTO> handlePathNotFound(NoResourceFoundException ex){
+    public ResponseEntity<ResponseExceptionDTO> handlePathNotFound(NoResourceFoundException ex) {
         ResponseExceptionDTO exceptionResponse = new ResponseExceptionDTO();
         exceptionResponse.setError(Constants.PATH_NOT_FOUND);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(exceptionResponse);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ResponseExceptionDTO> handleIllegalArgument(IllegalArgumentException ex) {
+        ResponseExceptionDTO exceptionResponse = new ResponseExceptionDTO();
+        exceptionResponse.setError(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(exceptionResponse);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ResponseExceptionDTO> handleArgumentType(MethodArgumentTypeMismatchException ex) {
+        ResponseExceptionDTO exceptionResponse = new ResponseExceptionDTO();
+        exceptionResponse.setError(Constants.ERROR_ARGUMENT_TYPE);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(exceptionResponse);
     }

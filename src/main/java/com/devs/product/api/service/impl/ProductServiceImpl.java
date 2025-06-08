@@ -4,22 +4,24 @@ import com.devs.product.api.dto.PageResponse;
 import com.devs.product.api.dto.ProductDTO;
 import com.devs.product.api.exception.AppBaseException;
 import com.devs.product.api.exception.NotFoundProductException;
+import com.devs.product.api.exception.ServiceUnavailableException;
 import com.devs.product.api.mapper.PageProductMapper;
 import com.devs.product.api.mapper.ProductMapper;
 import com.devs.product.api.model.Product;
 import com.devs.product.api.repository.ProductRepository;
 import com.devs.product.api.service.IProductService;
+import com.devs.product.api.service.util.MapperData;
+import com.devs.product.api.service.util.ValidateData;
 import com.devs.product.api.util.Constants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -29,28 +31,28 @@ public class ProductServiceImpl implements IProductService {
     private ProductRepository productRepository;
 
     @Autowired
-    private ProductMapper mapper;
+    private ProductMapper productMapper;
 
     @Autowired
     private PageProductMapper pageProductMapper;
 
     @Override
     public ProductDTO createProduct(ProductDTO productDTO) {
-
-        if (productDTO == null) {
-            throw new IllegalArgumentException(Constants.NON_NULL_PRODUCT);
-        }
+        ValidateData.validateProductNull(productDTO);
         try {
-            Product productSave = mapper.toEntity(productDTO);
+            Product productSave = productMapper.toEntity(productDTO);
             productSave.setCreatedAt(LocalDateTime.now());
 
             Product product = productRepository.save(productSave);
-            return mapper.toDTO(product);
+            return productMapper.toDTO(product);
 
 
+        } catch (DataAccessException ex) {
+            log.error(Constants.ERROR_ACCESS_BBDD, ex);
+            throw new ServiceUnavailableException(Constants.ERROR_ACCESS_BBDD);
         } catch (Exception ex) {
-            log.error(Constants.DB_ERROR, ex);
-            throw new AppBaseException(Constants.DB_ERROR);
+            log.error(Constants.UNEXPECTED_ERROR, ex);
+            throw ex;
         }
     }
 
@@ -62,28 +64,51 @@ public class ProductServiceImpl implements IProductService {
         try {
             Pageable pageable = PageRequest.of(page, size);
             Page<Product> productPage = productRepository.findAll(pageable);
-            Page<ProductDTO> productDTOPage = productPage.map(mapper::toDTO);
+            Page<ProductDTO> productDTOPage = productPage.map(productMapper::toDTO);
             return pageProductMapper.mapperPageProducts(productDTOPage);
+        } catch (DataAccessException ex) {
+            log.error(Constants.ERROR_ACCESS_BBDD, ex);
+            throw new ServiceUnavailableException(Constants.ERROR_ACCESS_BBDD);
         } catch (Exception ex) {
-            log.error(Constants.ERROR_LIST, ex);
-            throw new AppBaseException(Constants.ERROR_LIST);
+            log.error(Constants.UNEXPECTED_ERROR, ex);
+            throw ex;
         }
     }
 
     @Override
     public ProductDTO getProductById(Long productId) {
         if (productId == null || productId <= 0) {
-            throw new NotFoundProductException(Constants.PRODUCT_NOT_FOUND);
+            throw new NotFoundProductException(Constants.INVALID_PRODUCT_ID);
         }
 
         return productRepository.findById(productId)
-                .map(mapper::toDTO)
+                .map(productMapper::toDTO)
                 .orElseThrow(() -> new NotFoundProductException(Constants.PRODUCT_NOT_FOUND));
     }
 
     @Override
-    public ProductDTO updateProduct(ProductDTO productDTO) {
-        return null;
+    public ProductDTO updateProduct(Long productId, ProductDTO productDTO) {
+        try {
+            ValidateData.validateProductNull(productDTO);
+            ValidateData.validateNullProductId(productId);
+
+            Product product = productRepository.findById(productId)
+                    .orElseThrow(() -> new NotFoundProductException(Constants.PRODUCT_NOT_FOUND));
+
+            MapperData.mapperProduct(productDTO, product);
+            Product updateProduct = productRepository.save(product);
+            return productMapper.toDTO(updateProduct);
+
+        } catch (NotFoundProductException ex) {
+            throw ex;
+        } catch (DataAccessException ex) {
+            log.error(Constants.ERROR_ACCESS_BBDD, ex);
+            throw new ServiceUnavailableException(Constants.ERROR_ACCESS_BBDD);
+        } catch (Exception ex) {
+            log.error(Constants.UNEXPECTED_ERROR, ex);
+            throw ex;
+        }
+
     }
 
     @Override

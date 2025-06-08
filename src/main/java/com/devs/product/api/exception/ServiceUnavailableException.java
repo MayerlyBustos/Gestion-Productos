@@ -1,7 +1,7 @@
 package com.devs.product.api.exception;
 
-public class ProductDataException extends AppBaseException {
-    public ProductDataException(String message) {
+public class ServiceUnavailableException extends AppBaseException {
+    public ServiceUnavailableException(String message) {
         super(message);
     }
 }

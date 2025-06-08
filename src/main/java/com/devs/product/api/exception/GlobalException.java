@@ -2,6 +2,7 @@ package com.devs.product.api.exception;
 
 import com.devs.product.api.dto.ResponseExceptionDTO;
 import com.devs.product.api.util.Constants;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -72,6 +73,20 @@ public class GlobalException {
         ResponseExceptionDTO exceptionResponse = new ResponseExceptionDTO();
         exceptionResponse.setError(Constants.ERROR_ARGUMENT_TYPE);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(exceptionResponse);
+    }
+
+    @ExceptionHandler(DataAccessException.class)
+    public ResponseEntity<String> handleDatabaseException(DataAccessException ex) {
+        return ResponseEntity
+                .status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(Constants.SERVICE_UNAVAILABLE);
+    }
+    @ExceptionHandler(ServiceUnavailableException.class)
+    public ResponseEntity<ResponseExceptionDTO> handleProductDataException(ServiceUnavailableException ex) {
+        ResponseExceptionDTO exceptionResponse = new ResponseExceptionDTO();
+        exceptionResponse.setError(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                 .body(exceptionResponse);
     }
 

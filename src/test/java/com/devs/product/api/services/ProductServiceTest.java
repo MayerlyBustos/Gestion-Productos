@@ -1,6 +1,7 @@
 package com.devs.product.api.services;
 
 
+import com.devs.product.api.kafka.ProductEventProducer;
 import com.devs.product.api.util.Utils;
 import com.devs.product.api.dto.PageResponse;
 import com.devs.product.api.dto.ProductDTO;
@@ -13,7 +14,8 @@ import com.devs.product.api.repository.ProductRepository;
 import com.devs.product.api.service.impl.ProductServiceImpl;
 import com.devs.product.api.service.util.ValidateData;
 import com.devs.product.api.util.Constants;
-import org.junit.jupiter.api.BeforeAll;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -46,18 +48,26 @@ public class ProductServiceTest {
     @Mock
     private PageProductMapper pageProductMapper;
 
-    static Product product;
+    @Mock
+    private ProductEventProducer productEventProducer;
 
-    static ProductDTO productDTO;
+    Product product;
 
-    @BeforeAll
-    static void setup() {
+    ProductDTO productDTO;
+
+    @BeforeEach
+    void setup() {
         product = Utils.fillProduct();
         productDTO = Utils.fillProductDTO();
     }
 
     @Test
     void testCreateProduct() {
+        try {
+            doNothing().when(productEventProducer).sendProductCreatedEvent(any(ProductDTO.class));
+        } catch (JsonProcessingException e) {
+            fail();
+        }
         ValidateData.validateProductNull(productDTO);
         when(productMapper.toEntity(any(ProductDTO.class))).thenReturn(product);
         when(productRepository.save(any(Product.class))).thenReturn(product);

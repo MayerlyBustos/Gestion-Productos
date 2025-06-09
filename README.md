@@ -17,7 +17,6 @@ Para el desarrollo de esta prueba se implementaron las siguientes tecnologías:
 * Spring Boot: Facilita el desarrollo y la integración de aplicaciones.
 * PostgreSQL: Utilizada para la persistencia de los datos. 
 * Kafka: Para la mensajeria asíncrona. Aunque no es intensivamente usado en esta prueba, se implementa como ejemplo de integración con sistemas de eventos.
-* Redis: Sistema de caché. Mejora el rendimiento de acceso a datos.
 * Docker: Usado para la contenerización de la aplicación y los servicios.
 * JUnit & Mockito: Utilizados para la implementación de pruebas unitarias.
 * MapStruct: Mapeo automatico entre entidades y DTOs.
@@ -26,16 +25,16 @@ Para el desarrollo de esta prueba se implementaron las siguientes tecnologías:
 
 
 ## Dockerfile
-Este archivo contruye la imagen de la aplicación
+Este archivo contruye la imagen de la aplicación, lleva definido el openJDK sobre el cual corre la aplicación, 
+definición del nombre del jar, donde se encuentra ubicado, el puerto donde se expone la app y como se ejecuta.
 
 ## Docker-compose.yml
-Este archivo orquesta varios servicios, en esta prueba orquesta los siguientes:
+Este archivo orquesta servicios que se implementan en un desarrollo, para esta prueba se orquestan los siguientes:
 
 * PostgreSQL: Base de datos con volumenes persistentes.
 * Zookeeper: Gestor de coordinación de kafka.
 * Kafka: Broker de mensajes.
-* Redis: Manejo de caché.
-
+* app: La aplicación dockerizada
 
 ### Flujo de Git
 Se utilizó una estrategia de ramas inspirada en Git Flow, simplificada a:

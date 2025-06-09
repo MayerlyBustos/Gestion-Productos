@@ -42,3 +42,6 @@ Se utilizó una estrategia de ramas inspirada en Git Flow, simplificada a:
 * main: Rama principal para el despliegue.
 * feature/api: Rama con el desarrollo de la API.
 * feature/docker: Rama con los ficheros de configuración de Docker.
+
+
+Nota: _Se agrega Postman Collection para probar los endpoints_.

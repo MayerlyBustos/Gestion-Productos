@@ -3,11 +3,11 @@ version: '3.8'
 services:
   postgres:
     image: postgres:15-alpine
-    container_name: xxxx-db
+    container_name: products-db
     environment:
-      POSTGRES_USER: xxxx
-      POSTGRES_PASSWORD: xxxx
-      POSTGRES_DB: xxxx
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: products
     ports:
       - "5432:5432"
     volumes:

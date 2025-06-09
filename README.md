@@ -1,6 +1,6 @@
 # Gestión de Productos
 
-API REST desarrollada con Spring Boot, PostgreSQL, Redis, Kafka y Docker para la gestión básica de productos.
+API REST desarrollada con Spring Boot, PostgreSQL, Kafka y Docker para la gestión básica de productos.
 
 ### Arquitectura del proyecto
 Este proyecto cuenta con una arquitectura en capas, lo cual mejora el mantenimiento y la escalabilidad de la aplicación.

@@ -2,9 +2,9 @@ package com.devs.product.api.service.impl;
 
 import com.devs.product.api.dto.PageResponse;
 import com.devs.product.api.dto.ProductDTO;
-import com.devs.product.api.exception.AppBaseException;
 import com.devs.product.api.exception.NotFoundProductException;
 import com.devs.product.api.exception.ServiceUnavailableException;
+import com.devs.product.api.kafka.ProductEventProducer;
 import com.devs.product.api.mapper.PageProductMapper;
 import com.devs.product.api.mapper.ProductMapper;
 import com.devs.product.api.model.Product;
@@ -13,8 +13,12 @@ import com.devs.product.api.service.IProductService;
 import com.devs.product.api.service.util.MapperData;
 import com.devs.product.api.service.util.ValidateData;
 import com.devs.product.api.util.Constants;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -36,6 +40,10 @@ public class ProductServiceImpl implements IProductService {
     @Autowired
     private PageProductMapper pageProductMapper;
 
+    @Autowired
+    private ProductEventProducer productEventProducer;
+
+    @CachePut(value = "products", key = "#result.id")
     @Override
     public ProductDTO createProduct(ProductDTO productDTO) {
         ValidateData.validateProductNull(productDTO);
@@ -44,7 +52,10 @@ public class ProductServiceImpl implements IProductService {
             productSave.setCreatedAt(LocalDateTime.now());
 
             Product product = productRepository.save(productSave);
-            return productMapper.toDTO(product);
+            ProductDTO dtoCreated = productMapper.toDTO(product);
+
+            productEventProducer.sendProductCreatedEvent(dtoCreated);
+            return dtoCreated;
 
 
         } catch (DataAccessException ex) {
@@ -52,10 +63,15 @@ public class ProductServiceImpl implements IProductService {
             throw new ServiceUnavailableException(Constants.ERROR_ACCESS_BBDD);
         } catch (Exception ex) {
             log.error(Constants.UNEXPECTED_ERROR, ex);
-            throw ex;
+            try {
+                throw ex;
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
+    @Cacheable(value = "products")
     @Override
     public PageResponse<ProductDTO> listProducts(int page, int size) {
         if (page < 0 || size <= 0) {
@@ -75,6 +91,7 @@ public class ProductServiceImpl implements IProductService {
         }
     }
 
+    @Cacheable(value = "products", key = "#productId")
     @Override
     public ProductDTO getProductById(Long productId) {
         ValidateData.validateNullProductId(productId);
@@ -84,6 +101,7 @@ public class ProductServiceImpl implements IProductService {
                 .orElseThrow(() -> new NotFoundProductException(Constants.PRODUCT_NOT_FOUND));
     }
 
+    @CachePut(value = "products", key = "#result.id")
     @Override
     public ProductDTO updateProduct(Long productId, ProductDTO productDTO) {
         try {
@@ -109,6 +127,7 @@ public class ProductServiceImpl implements IProductService {
 
     }
 
+    @CacheEvict(value = "products", key = "#productId")
     @Override
     public void deleteProductById(Long productId) {
         ValidateData.validateNullProductId(productId);

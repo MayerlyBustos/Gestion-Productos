@@ -16,6 +16,9 @@ import com.devs.product.api.util.Constants;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -40,6 +43,7 @@ public class ProductServiceImpl implements IProductService {
     @Autowired
     private ProductEventProducer productEventProducer;
 
+    @CachePut(value = "products", key = "#result.id")
     @Override
     public ProductDTO createProduct(ProductDTO productDTO) {
         ValidateData.validateProductNull(productDTO);
@@ -67,6 +71,7 @@ public class ProductServiceImpl implements IProductService {
         }
     }
 
+    @Cacheable(value = "products")
     @Override
     public PageResponse<ProductDTO> listProducts(int page, int size) {
         if (page < 0 || size <= 0) {
@@ -86,6 +91,7 @@ public class ProductServiceImpl implements IProductService {
         }
     }
 
+    @Cacheable(value = "products", key = "#productId")
     @Override
     public ProductDTO getProductById(Long productId) {
         ValidateData.validateNullProductId(productId);
@@ -95,6 +101,7 @@ public class ProductServiceImpl implements IProductService {
                 .orElseThrow(() -> new NotFoundProductException(Constants.PRODUCT_NOT_FOUND));
     }
 
+    @CachePut(value = "products", key = "#result.id")
     @Override
     public ProductDTO updateProduct(Long productId, ProductDTO productDTO) {
         try {
@@ -120,6 +127,7 @@ public class ProductServiceImpl implements IProductService {
 
     }
 
+    @CacheEvict(value = "products", key = "#productId")
     @Override
     public void deleteProductById(Long productId) {
         ValidateData.validateNullProductId(productId);

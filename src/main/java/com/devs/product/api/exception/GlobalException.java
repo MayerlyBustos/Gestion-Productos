@@ -2,6 +2,7 @@ package com.devs.product.api.exception;
 
 import com.devs.product.api.dto.ResponseExceptionDTO;
 import com.devs.product.api.util.Constants;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,8 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 import java.util.HashMap;
 import java.util.Map;
 
+
+@Slf4j
 @RestControllerAdvice
 public class GlobalException {
 
@@ -78,6 +81,7 @@ public class GlobalException {
 
     @ExceptionHandler(DataAccessException.class)
     public ResponseEntity<String> handleDatabaseException(DataAccessException ex) {
+        log.error("Error al acceder a BBDD", ex);
         return ResponseEntity
                 .status(HttpStatus.SERVICE_UNAVAILABLE)
                 .body(Constants.SERVICE_UNAVAILABLE);
